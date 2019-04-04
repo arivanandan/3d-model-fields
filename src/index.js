@@ -1,12 +1,36 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
+import { Provider } from 'react-redux';
+import Loader from 'react-loader-spinner';
+
+import configureStore from 'store/configure-store';
+
+import 'styles/index.css';
+
 import App from './App';
-import * as serviceWorker from './serviceWorker';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+class Root extends React.Component {
+  state = { storeCreated: false }
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+  componentDidMount() {
+    configureStore().then(({ store }) => { this.setState({ store, storeCreated: true }); });
+  }
+
+  render() {
+    const { storeCreated, store } = this.state;
+
+    if (!storeCreated) return (
+      <div className="container center">
+        <Loader type="Grid" color="#5add95" height={80} width={80} />
+      </div>
+    );
+
+    return (
+      <Provider store={store}>
+        <App />
+      </Provider>
+    );
+  }
+}
+
+ReactDOM.render(<Root />, document.getElementById('root'));
